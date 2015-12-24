@@ -8,10 +8,11 @@ public class TaxiWays extends SimEntity {
 	private boolean occupied;
 	
 	private Plane plane;
+	private ControlTower controlTower;
 
-	public TaxiWays(SimEngine engine) {
+	public TaxiWays(SimEngine engine, ControlTower controlTower) {
 		super(engine);
-		// TODO Auto-generated constructor stub
+		this.controlTower = controlTower;
 	}
 
 	public boolean isOccupied() {

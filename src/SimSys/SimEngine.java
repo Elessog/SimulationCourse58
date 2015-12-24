@@ -58,7 +58,6 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 	}
 	
 	public boolean triggerNextEvent() {
-		// TODO add maxTime check
 		if (echeancier.size() == 0 || currentTime.compareTo(maxTime)>=0) {
 			this.terminate();
 			return false;
@@ -76,6 +75,13 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 			if (entity.isAffectedBy(nextEvent))
 				entity.release();
 		}
+		//cleaning
+		for (SimEntity entity : entities) {
+			if (entity.isDead(nextEvent)){
+				this.entities.remove(entity);
+			}
+			   
+		}
 		return true;
 	}
 
@@ -91,6 +97,7 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 		for (SimEntity entity : entities)
 			entity.terminate();
 		echeancier.clear();
+		entities.clear();
 	}
 
 	public LogicalDateTime getLastTime() {

@@ -7,10 +7,11 @@ public class Runway extends SimEntity {
 	
 	private boolean occupied;
 	private Plane plane;
-	
-	public Runway(SimEngine engine) {
+	private ControlTower controlTower;
+
+	public Runway(SimEngine engine, ControlTower controlTower) {
 		super(engine);
-		// TODO Auto-generated constructor stub
+		this.controlTower = controlTower;
 	}
 
 	public boolean isOccupied() {

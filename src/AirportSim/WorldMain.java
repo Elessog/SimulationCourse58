@@ -71,22 +71,37 @@ public class WorldMain {
 		  return k - 1;
 	}
 	
+	public void loop(){
+		while (this.engine.triggerNextEvent()) {
+        	LogicalDuration delta = this.engine.getLastDuration();
+        	System.out.println(delta);
+        	double freq = this.controlTower.getHourlyRate();
+        	int res =this.getNumberEvent(delta, freq);
+            System.out.println(res);
+            while (res >0){
+            	(new Plane(this.engine,this.controlTower)).activate();
+            	res--;
+            }
+        }
+	}
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stubs
 		LogicalDateTime debut = new LogicalDateTime("20/12/1991 04:45:00.5000");
 		LogicalDateTime fin = new LogicalDateTime("23/12/1991 04:45:00.5000");
         WorldMain world = new WorldMain(0, 0, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
-        world = new WorldMain(0, 0,12345, debut, fin);
+        world = new WorldMain(0, 5,12345, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
         world.engine.resume();
-        Plane plane = new Plane(world.engine,world.controlTower);
-        while (world.engine.triggerNextEvent()) {
+        //Plane plane = new Plane(world.engine,world.controlTower);
+        /*while (world.engine.triggerNextEvent()) {
         	LogicalDuration delta = world.engine.getLastDuration();
         	System.out.println(delta);
         	int res =world.getNumberEvent(delta, 10);
             System.out.println(res);
-        }
+        }*/
+        world.loop();
         
 	}
 

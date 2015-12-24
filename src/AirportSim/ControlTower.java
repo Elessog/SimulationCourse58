@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import AirportSim.Plane.PlaneResutState;
+import AirportSim.Plane.PlaneState;
+import SimSys.EntityState;
 import SimSys.SimEngine;
 import SimuCoiffeur.SimEvent;
 import enstabretagne.base.math.MoreRandom;
@@ -16,15 +19,22 @@ public class ControlTower extends SimSys.SimEntity {
 	private List<Plane> groundedPlanes = new ArrayList<Plane>();
 	private List<Plane> leavingPlanes = new ArrayList<Plane>();
 	private List<Plane> incomingPlanes = new ArrayList<Plane>();
+	private List<Plane> allMovingPlanes = new ArrayList<Plane>();
 	private Plane incomingPlane;
 	private Plane leavingPlane;
-	MoreRandom rand;
+	private Plane taxi2Plane;
 	private int freqPlaneBase; //normal is freq busy is freq/2 week-end are freq*4 in minute between planes
-
+    public Runway runway;
+    public TaxiWays tw1;
+    public TaxiWays tw2;
+	
+	
 	public ControlTower(SimEngine engine,int freqPlane) {
 		super(engine);
 		this.freqPlaneBase = freqPlane;
-		
+		runway = new Runway(engine,this);
+		tw1 = new  TaxiWays(engine,this);
+		tw2 = new  TaxiWays(engine,this);
 	}
 	
 	public int checkNumFree(){
@@ -46,28 +56,86 @@ public class ControlTower extends SimSys.SimEntity {
 		while(isFree && groundedIt.hasNext()){
 			isFree &= !(num==groundedIt.next().getIdNumber());
 		}
-		Iterator<Plane> leavingIt = leavingPlanes.iterator();
-		while(isFree && leavingIt.hasNext()){
-			isFree &= !(num==leavingIt.next().getIdNumber());
+		Iterator<Plane> allMovingIt = allMovingPlanes.iterator();
+		while(isFree && allMovingIt.hasNext()){
+			isFree &= !(num==allMovingIt.next().getIdNumber());
 		}
-		Iterator<Plane> incomingIt = incomingPlanes.iterator();
-		while(isFree && incomingIt.hasNext()){
-			isFree &= !(num==incomingIt.next().getIdNumber());
-		}
+		
 		if (incomingPlane==null && leavingPlane==null)
 			return isFree;
 		if (incomingPlane!=null && leavingPlane!=null)
-			return isFree &=(incomingPlane.getIdNumber()==num)&&(leavingPlane.getIdNumber()==num);
+			return isFree &=(incomingPlane.getIdNumber()!=num)&&(leavingPlane.getIdNumber()!=num);
 		if (incomingPlane==null)
-			return isFree &=(leavingPlane.getIdNumber()==num);
+			return isFree &=(leavingPlane.getIdNumber()!=num);
 		if (leavingPlane==null)
-			return isFree&=(incomingPlane.getIdNumber()==num);
+			return isFree&=(incomingPlane.getIdNumber()!=num);
 		return isFree;
 	}
 	
 	public void annoucing(Plane newPlane){
 		newPlane.setIdNumber(checkNumFree());
+		newPlane.setControlTower(this);
 		incomingPlanes.add(newPlane);
+		allMovingPlanes.add(newPlane);
+		/*if (incomingPlane == null){
+			incomingPlane = incomingPlanes.remove(0);
+		}*/
+	}
+	
+	public int findPlaneInList(List<Plane> list,int idPlane){
+		int i = 0;
+		boolean found=false;
+		Iterator<Plane> leavingIt = leavingPlanes.iterator();
+		while(!found && leavingIt.hasNext()){
+			found = idPlane==leavingIt.next().getIdNumber();
+	        if (!found)
+	        	i++;
+		}
+		return i;
+	}
+	
+	public void leaving(Plane exitingPlane){
+		groundedPlanes.remove(exitingPlane);
+		allMovingPlanes.add(exitingPlane);
+		if (!tw2.isOccupied()){
+			tw2.setOccupied(true);
+			exitingPlane.setPlaneState(PlaneState.GOINGTAKEOFF);
+			return;
+		}
+		leavingPlanes.add(exitingPlane);
+		
+		exitingPlane.setPlaneState(PlaneState.WAITING);
+	}
+	
+	/**
+	 * Plane quit airspace of the airport the runway is free for landing or
+	 * @param flyingAwayPlane plane which is leaving
+	 */
+	public void outOfReach(Plane flyingAwayPlane){
+		leavingPlane = null;
+		flyingAwayPlane.setState(EntityState.DEAD);
+		if (allMovingPlanes.size()<=0)
+				return;
+		Plane authorizedPlane = allMovingPlanes.remove(0);
+		if (authorizedPlane.getPlaneState() == PlaneState.GOINGTAKEOFF){
+			// the next plane on takeaway is leaving
+			this.leavingPlane = authorizedPlane;
+			this.leavingPlanes.remove(authorizedPlane);
+			authorizedPlane.setPlaneState(PlaneState.TAKEOFF);
+			if (authorizedPlane.getPrstate() == PlaneResutState.ARRIVEDRUNWAY){
+				authorizedPlane.takeoff();
+			}
+		}
+		else if (!tw1.isOccupied()) {
+			this.incomingPlane= authorizedPlane;
+			this.incomingPlanes.remove(authorizedPlane);
+			authorizedPlane.setPlaneState(PlaneState.APPROACHING);
+			authorizedPlane.approach();
+		}
+		else{
+			//TODO
+		}
+		
 	}
 	
 	
@@ -76,7 +144,7 @@ public class ControlTower extends SimSys.SimEntity {
 		   this.addEvent(new CloseTower(fermeture));
 	   }
 
-	public class OpenTower extends SimEvent{
+	private class OpenTower extends SimEvent{
 
 		public OpenTower(LogicalDateTime scheduledDate) {
 			super(scheduledDate);
@@ -112,7 +180,7 @@ public class ControlTower extends SimSys.SimEntity {
 		   
 	   }
 
-	public class CloseTower extends SimEvent{
+	private class CloseTower extends SimEvent{
 
 		public CloseTower(LogicalDateTime scheduledDate) {
 			super(scheduledDate);
@@ -122,7 +190,12 @@ public class ControlTower extends SimSys.SimEntity {
 		@Override
 		public void process() {
 			ControlTower.this.isOpen = false;
-			//reopen tomorrow
+			int i;//rerouting all incoming airplanes
+			for (Plane iPlane:incomingPlanes){
+				allMovingPlanes.remove(iPlane);
+			}
+			incomingPlanes.clear();
+
 			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
 			ControlTower.this.addEvent(this);
 		}
@@ -148,7 +221,7 @@ public class ControlTower extends SimSys.SimEntity {
 	   }
 	
 	public double getHourlyRate(){
-		
+		//TODO considere week end
 		int seven = compareTo( 7);
 		int dix = compareTo( 10);
 		int dixsept = compareTo( 17);

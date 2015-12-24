@@ -64,4 +64,9 @@ public class SimEntity {
 	public SimEngine getEngine(){
 		return this.engine;
 	}
+
+	public boolean isDead(ISimEvent nextEvent) {
+		
+		return this.state == EntityState.DEAD;
+	}
 }
