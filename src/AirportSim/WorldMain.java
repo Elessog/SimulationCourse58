@@ -14,10 +14,12 @@ public class WorldMain {
 		this.engine = new SimEngine(fin);
 		debut = debut.truncateToDays();
 		System.out.println(debut);
+		this.engine.setStartTime(debut);
 		this.engine.setCurrentTime(debut);
 		
+		
 		this.engine.setRand(rand);
-		this.controlTower = new ControlTower(engine,freqPlanes);
+		this.controlTower = new ControlTower(engine,freqPlanes,nbGates);
 		LogicalDateTime openning = debut.getCopy();
 		openning = openning.add(LogicalDuration.ofHours(ouverture));
 		LogicalDateTime closing= debut.getCopy();
@@ -89,10 +91,12 @@ public class WorldMain {
 		// TODO Auto-generated method stubs
 		LogicalDateTime debut = new LogicalDateTime("20/12/1991 04:45:00.5000");
 		LogicalDateTime fin = new LogicalDateTime("23/12/1991 04:45:00.5000");
-        WorldMain world = new WorldMain(0, 0, debut, fin);
+        WorldMain world = new WorldMain(2, 0, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
-        world = new WorldMain(0, 5,12345, debut, fin);
+        System.out.println(world.getPoisson(0));
+        world = new WorldMain(2, 5,12345, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
+        
         world.engine.resume();
         //Plane plane = new Plane(world.engine,world.controlTower);
         /*while (world.engine.triggerNextEvent()) {
@@ -102,7 +106,7 @@ public class WorldMain {
             System.out.println(res);
         }*/
         world.loop();
-        
+        System.out.println("end");
 	}
 
 }

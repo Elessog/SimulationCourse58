@@ -1,19 +1,35 @@
 package AirportSim;
 
+import enstabretagne.base.time.LogicalDateTime;
+import enstabretagne.base.time.LogicalDuration;
 import SimSys.SimEngine;
 import SimSys.SimEntity;
+import SimuCoiffeur.SimEvent;
 
 public class Plane extends SimEntity {
 	
 	private int idNumber = 9999;
 	private PlaneState pstate =PlaneState.FLYING;
 	private PlaneResutState prstate =PlaneResutState.FLYING;
+	private int gateId = 9999;
 	private ControlTower controlTower;
-
+	private LogicalDateTime creationTime;
+    private LogicalDateTime approachingTime;
+    private LogicalDateTime landingTime;
+    private LogicalDateTime tw1Time;
+    private LogicalDateTime exitPrepTime;
+    private LogicalDateTime endExitPrepTime;
+    private LogicalDateTime boardingTime;
+    private LogicalDateTime leavingTime;
+    private LogicalDateTime tw2Time;
+    private LogicalDateTime takeoffTime;
+    private LogicalDateTime endTime;
+	public LogicalDateTime endBoardingTime;
 	
 
 	public Plane(SimEngine engine,ControlTower controlTower) {
 		super(engine);
+		this.creationTime = this.engine.simulationDate();
 		controlTower.annoucing(this);
 	}
 
@@ -58,6 +74,7 @@ public class Plane extends SimEntity {
 		FLYING,
 		APPROACHED,
 		LANDED,
+		ROULINGENDED,
 		GATED,
 		BOARDED,
 		ARRIVEDRUNWAY,
@@ -85,10 +102,252 @@ public class Plane extends SimEntity {
 	}
 
 	public void approach() {
-		// TODO Auto-generated method stub
-		
+		this.approachingTime = this.engine.simulationDate();
+		int minutes = (int) this.engine.getRand().nextUniform(2, 5.999)*this.controlTower.getWeatherIndice();
+		this.addEvent(new ApproachingEnd(this.approachingTime.add(LogicalDuration.ofMinutes(minutes))));
+	}
+	
+	public void landing(){
+		this.landingTime = this.engine.simulationDate();
+		LandingEnd landing = new LandingEnd(Plane.this.landingTime.add(LogicalDuration.ofMinutes(2)));
+		this.addEvent(landing);
+	}
+	
+	public void tw1ing() {
+		this.tw1Time = this.engine.simulationDate();
+		int minutes = (int) this.engine.getRand().nextUniform(2, 6.999);
+		tw1End tw1ing = new tw1End(Plane.this.tw1Time.add(LogicalDuration.ofMinutes(minutes)));
+		this.addEvent(tw1ing);
 	}
 
+	private class ApproachingEnd extends SimEvent{
+
+		public ApproachingEnd(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+		}
+
+		@Override
+		public void process() {
+			Plane.this.prstate=PlaneResutState.APPROACHED;
+			Plane.this.controlTower.approached();
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		   
+	   }
 	
+	private class LandingEnd extends SimEvent{
+
+		public LandingEnd(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.prstate=PlaneResutState.LANDED;
+			Plane.this.controlTower.landed();
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		   
+	}
+
+	private class tw1End extends SimEvent{
+
+		public tw1End(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.prstate=PlaneResutState.ROULINGENDED;
+			Plane.this.controlTower.endfly();
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+
+	private class tw2End extends SimEvent{
+
+		public tw2End(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.prstate=PlaneResutState.ARRIVEDRUNWAY;
+			Plane.this.controlTower.readyfly();
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	private class deboardingEnd extends SimEvent{
+
+		public deboardingEnd(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.endExitPrepTime = Plane.this.engine.simulationDate();
+			Plane.this.controlTower.deboardEnded(Plane.this);
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	private class boardingEnd extends SimEvent{
+
+		public boardingEnd(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.setPrstate(PlaneResutState.BOARDED);
+			Plane.this.endBoardingTime = Plane.this.engine.simulationDate();
+			Plane.this.controlTower.leaving(Plane.this);
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+	}
+	
+	public void gating(int i) {
+		this.setGateId(i);
+		this.exitPrepTime = this.engine.simulationDate();
+		this.prstate = PlaneResutState.GATED;
+		this.pstate = PlaneState.GATE;
+		this.controlTower.gated(this);
+	}
+	
+	public void deboard() {
+		deboardingEnd event  = new deboardingEnd(Plane.this.exitPrepTime.add(LogicalDuration.ofMinutes(40)));
+		this.addEvent(event);
+	}
+
+	public void tw2ing() {
+		this.tw2Time = this.engine.simulationDate();
+		//TODO change this.prstate = PlaneResutState.BOARDED;
+		int minutes = (int) this.engine.getRand().nextUniform(2, 6.999);
+		tw2End tw2ing = new tw2End(Plane.this.tw2Time.add(LogicalDuration.ofMinutes(minutes)));
+		this.addEvent(tw2ing);
+	}
+
+	public int getGateId() {
+		return gateId;
+	}
+
+	public void setGateId(int gateId) {
+		this.gateId = gateId;
+	}
+
+	public void board() {
+		this.boardingTime = this.engine.simulationDate();
+		boardingEnd boarding = new boardingEnd(Plane.this.boardingTime.add(LogicalDuration.ofMinutes(20)));
+		this.addEvent(boarding);
+	}
+
 
 }

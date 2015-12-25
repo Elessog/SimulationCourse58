@@ -7,10 +7,13 @@ public class Gate extends SimEntity {
 	
 	private boolean occupied;
 	private Plane plane;
+	private int gateId;
 
-	public Gate(SimEngine engine) {
+	public Gate(SimEngine engine,int gateid) {
 		super(engine);
-		// TODO Auto-generated constructor stub
+		setGateId(gateid);
+		setOccupied(false);
+		setPlane(null);
 	}
 
 	public boolean isOccupied() {
@@ -27,6 +30,14 @@ public class Gate extends SimEntity {
 
 	public void setPlane(Plane plane) {
 		this.plane = plane;
+	}
+
+	public int getGateId() {
+		return gateId;
+	}
+
+	public void setGateId(int gateId) {
+		this.gateId = gateId;
 	}
 
 }

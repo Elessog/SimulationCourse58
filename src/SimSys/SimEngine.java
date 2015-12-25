@@ -12,6 +12,7 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 
 	private LogicalDateTime currentTime;
 	private LogicalDateTime lastTime;
+	private LogicalDateTime StartTime;
 	private LogicalDateTime maxTime;
 	private SortedList<ISimEvent> echeancier = new SortedList<>();
 	private Set<SimEntity> entities = new HashSet<>();
@@ -114,6 +115,14 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 
 	public void setRand(MoreRandom rand) {
 		this.rand = rand;
+	}
+
+	public LogicalDateTime getStartTime() {
+		return StartTime;
+	}
+
+	public void setStartTime(LogicalDateTime startTime) {
+		StartTime = startTime;
 	}
 
 	
