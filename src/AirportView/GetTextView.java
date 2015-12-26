@@ -3,12 +3,15 @@ package AirportView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
+
+import AirportServ.ParserFile;
 
 
 public class GetTextView {
@@ -41,6 +44,9 @@ public class GetTextView {
         {   public void filesDropped( java.io.File[] files )
             {  try
                     {   text.append( files[0].getCanonicalPath() );
+                        MainView.getMainView().parsefile(files[0].getAbsolutePath());
+                        mSingleton = null;
+                        frame.dispose();
                     }   // end try
                     catch( java.io.IOException e ) {}
             }   // end filesDropped
@@ -110,8 +116,11 @@ public class GetTextView {
                 	
                 	if (returnVal == JFileChooser.APPROVE_OPTION) {
                         File file = fc.getSelectedFile();
-                        //This is where a real application would open the file.
                         System.out.println("Opening: " + file.getName() + "." +"\n");
+                        MainView.getMainView().parsefile(file.getAbsolutePath());
+                        mSingleton = null;
+                        frame.dispose();
+                        
                     } else {
                     	System.out.println("Open command cancelled by user." + "\n");
                     }

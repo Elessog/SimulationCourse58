@@ -1,7 +1,10 @@
 package AirportView;
 
+import java.io.IOException;
+
 import javax.swing.JFrame;
 
+import AirportServ.ParserFile;
 import AirportSim.*;
 
 @SuppressWarnings("serial")
@@ -40,6 +43,17 @@ public class MainView extends JFrame
 	public static void main(String[] args)
 	{
 		MainView test = new MainView();
+	}
+
+	public void parsefile(String absolutePath) {
+		// TODO Auto-generated method stub
+		try {
+			ParserFile parser = new ParserFile(absolutePath);
+			parser.getParam().startSimu();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 	}
 
 }
