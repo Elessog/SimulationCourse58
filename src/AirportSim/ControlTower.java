@@ -119,7 +119,7 @@ public class ControlTower extends SimSys.SimEntity {
 	}
 	
 	public void leaving(Plane exitingPlane){
-		groundedPlanes.remove(exitingPlane);
+		boolean res = groundedPlanes.remove(exitingPlane);
 		allMovingPlanes.add(exitingPlane);
 		leavingPlanes.add(exitingPlane);
 		exitingPlane.setPlaneState(PlaneState.WAITING);
@@ -127,7 +127,7 @@ public class ControlTower extends SimSys.SimEntity {
 	}
 	
 	public void goTotw2(){
-		if (!tw2.isOccupied()){
+		if (!tw2.isOccupied() && !leavingPlanes.isEmpty()){
 			Plane gototw2Plane = leavingPlanes.get(0);
 			tw2.setOccupied(true);
 			tw2.setPlane(gototw2Plane);
@@ -156,7 +156,8 @@ public class ControlTower extends SimSys.SimEntity {
 		flyingAwayPlane.setState(EntityState.DEAD);
 		System.out.print("Fly ");
 		System.out.print(flyingAwayPlane.getIdNumber());
-		System.out.println("gone");
+		System.out.println(" gone");
+		System.out.println(this.engine.simulationDate());
 		checkNewAuth();		
 	}
 	
@@ -181,6 +182,10 @@ public class ControlTower extends SimSys.SimEntity {
 			//reopen tomorrow
 			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
 			ControlTower.this.addEvent(this);
+			//adding check sky
+			for (int i=1;i<22-7;i++){
+				ControlTower.this.addEvent(new ScanningSky(this.scheduledDate.add(LogicalDuration.ofHours(i))));
+			}
 		}
 
 		@Override
@@ -243,16 +248,55 @@ public class ControlTower extends SimSys.SimEntity {
 		   
 	   }
 	
+	private class ScanningSky extends SimEvent{
+
+		public ScanningSky(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			//void because its just to help create plane randomly
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		   
+	   }
+	
 	public double getHourlyRate(){
 		//TODO considere week end
 		LogicalDuration day = this.engine.simulationDate().truncateToDays().soustract(this.engine.getStartTime());
 		int od = day.getMinutes()/(60*24)-(day.getMinutes()/(60*24*7))*7;
-		if (od > 4)
+		if (od > 4){
+			int seven = compareTo(7);
+			int vingtdeux = compareTo(22);
+			if (seven<0 || vingtdeux >= 0){
+				return 0;
+			}
 			return 0.5*1/(double)this.freqPlaneBase;
-		int seven = compareTo( 7);
-		int dix = compareTo( 10);
-		int dixsept = compareTo( 17);
-		int vingt = compareTo( 20);
+		}
+		int seven = compareTo(7);
+		int dix = compareTo(10);
+		int dixsept = compareTo(17);
+		int dixneuf = compareTo(19);
+		int vingtdeux = compareTo(22);
 		if (seven<0){
 			return 0;
 		}
@@ -262,8 +306,11 @@ public class ControlTower extends SimSys.SimEntity {
 		if (dixsept<0){
 			return 1/(double)this.freqPlaneBase;
 		}
-        if (vingt<0){
+        if (dixneuf<0){
         	return 2/(double)this.freqPlaneBase;
+		}
+        if (vingtdeux<0){
+        	return 1/(double)this.freqPlaneBase;
 		}
 		return 0;
 	}

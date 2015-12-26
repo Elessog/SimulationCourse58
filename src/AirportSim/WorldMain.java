@@ -90,11 +90,11 @@ public class WorldMain {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stubs
 		LogicalDateTime debut = new LogicalDateTime("20/12/1991 04:45:00.5000");
-		LogicalDateTime fin = new LogicalDateTime("23/12/1991 04:45:00.5000");
-        WorldMain world = new WorldMain(2, 0, debut, fin);
+		LogicalDateTime fin = new LogicalDateTime("20/03/1992 04:45:00.5000");
+        WorldMain world = new WorldMain(5, 5, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
         System.out.println(world.getPoisson(0));
-        world = new WorldMain(2, 5,12345, debut, fin);
+       // world = new WorldMain(5, 5,12345, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
         
         world.engine.resume();

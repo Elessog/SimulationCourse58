@@ -89,17 +89,13 @@ public class Plane extends SimEntity {
 	@Override
 	public boolean equals(Object o){
 		
-		if (!(o instanceof Plane)){
+		if ((o instanceof Plane)){
 			return ((Plane) o).getIdNumber()==this.idNumber;
 		}
 		else 
 			return false;
 	}
 
-	public void takeoff() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public void approach() {
 		this.approachingTime = this.engine.simulationDate();
@@ -120,6 +116,12 @@ public class Plane extends SimEntity {
 		this.addEvent(tw1ing);
 	}
 
+	public void takeoff() {
+		this.takeoffTime = this.engine.simulationDate();
+		TakeOffEnd landing = new TakeOffEnd(Plane.this.takeoffTime.add(LogicalDuration.ofMinutes(3)));
+		this.addEvent(landing);
+	}
+	
 	private class ApproachingEnd extends SimEvent{
 
 		public ApproachingEnd(LogicalDateTime scheduledDate) {
@@ -312,6 +314,40 @@ public class Plane extends SimEntity {
 			// TODO Auto-generated method stub
 			return null;
 		}
+	}
+	
+	private class TakeOffEnd extends SimEvent{
+
+		public TakeOffEnd(LogicalDateTime scheduledDate) {
+			super(scheduledDate);
+			// TODO Auto-generated constructor stub
+		}
+
+		@Override
+		public void process() {
+			Plane.this.endTime = Plane.this.engine.simulationDate();
+			Plane.this.prstate=PlaneResutState.OUTOFREACH;
+			Plane.this.controlTower.outOfReach(Plane.this);
+		}
+
+		@Override
+		public String[] getTitles() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String[] getRecords() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		@Override
+		public String getClassement() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+		   
 	}
 	
 	public void gating(int i) {
