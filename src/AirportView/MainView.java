@@ -3,8 +3,10 @@ package AirportView;
 import java.io.IOException;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import AirportServ.ParserFile;
+import AirportServ.SimuParam;
 import AirportSim.*;
 
 @SuppressWarnings("serial")
@@ -20,11 +22,6 @@ public class MainView extends JFrame
 		if(mSingleton == null)
 			mSingleton = new MainView();
 		return mSingleton;
-	}
-
-	public void simulation()
-	{
-		//mTabbedView.add(new StatistiquesView());
 	}
 	
 	public MainView()
@@ -49,11 +46,18 @@ public class MainView extends JFrame
 		// TODO Auto-generated method stub
 		try {
 			ParserFile parser = new ParserFile(absolutePath);
-			parser.getParam().startSimu();
+			int dialogButton = JOptionPane.YES_NO_OPTION;
+            int result = JOptionPane.showConfirmDialog (null, "Do you want to start simulation ?","Warning",dialogButton);
+            if(result == JOptionPane.YES_OPTION)
+            	parser.getParam().startSimu();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+	}
+
+	public void startSimu(SimuParam param) {
+		param.startSimu();
 	}
 
 }

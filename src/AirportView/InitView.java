@@ -50,6 +50,9 @@ public class InitView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				MainView.getMainView().remove(InitView.this);
+				MainView.getMainView().add(new StartIhmView());
+				MainView.getMainView().setVisible(true);
 			}
 		});;
 		add(mBoxes,c);

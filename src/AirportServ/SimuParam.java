@@ -40,6 +40,18 @@ public class SimuParam {
 			seed = Long.parseLong(value);
 		}
 	}
+	
+	public void processIhm(int nbGates,int freq,String seed,String debut,String fin,int ouv,int ferm){
+		if (seed!=null){
+			this.seed = Long.parseLong(seed);
+		}
+		this.debut =new LogicalDateTime(debut);
+		this.fin =new LogicalDateTime(fin);
+		this.ouverture = ouv;
+		this.fermeture = ferm;
+		this.nbGates = nbGates;
+		this.freqPlanes = freq;
+	}
 
 	public void startSimu() {
 		// TODO Auto-generated method stub
@@ -53,7 +65,7 @@ public class SimuParam {
 			else
 				world= new WorldMain(nbGates, freqPlanes,seed ,debut, fin,ouverture,fermeture);
 	        System.out.println(world.engine.getRand().getSeed());
-	        
+	        world.engine.initialize();
 	        world.engine.resume();
 	        world.loop();
 	        System.out.println("end");
