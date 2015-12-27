@@ -41,9 +41,10 @@ public class ParserFile {
 	   */
 	  protected void processLine(String aLine){
 	    //use a second Scanner to parse the content of each line 
-	    Scanner scanner = new Scanner(aLine);
+	    @SuppressWarnings("resource")
+		Scanner scanner = new Scanner(aLine);
 	    scanner.useDelimiter("=");
-	    if (aLine.charAt(0) == '#')
+	    if (aLine.charAt(0) == '#' || aLine.length()<4)
 	    	return;
 	    if (scanner.hasNext()){
 	      //assumes the line has a certain structure

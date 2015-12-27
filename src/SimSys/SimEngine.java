@@ -3,6 +3,7 @@ package SimSys;
 import java.util.HashSet;
 import java.util.Set;
 
+import enstabretagne.simulation.core.ISimulationDateProvider;
 import enstabretagne.base.math.MoreRandom;
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.base.time.LogicalDuration;
@@ -23,7 +24,7 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 	}
 	
 	@Override
-	public LogicalDateTime simulationDate() {
+	public LogicalDateTime SimulationDate() {
 		return currentTime;
 	}
 	

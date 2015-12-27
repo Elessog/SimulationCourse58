@@ -1,5 +1,6 @@
 package AirportSim;
 
+import AirportServ.LoggerUtil;
 import SimSys.SimEngine;
 import enstabretagne.base.math.MoreRandom;
 import enstabretagne.base.time.LogicalDateTime;
@@ -19,13 +20,15 @@ public class WorldMain {
 		
 		
 		this.engine.setRand(rand);
-		this.controlTower = new ControlTower(engine,freqPlanes,nbGates);
+		this.controlTower = new ControlTower(engine,freqPlanes,nbGates,ouverture,fermeture);
 		LogicalDateTime openning = debut.getCopy();
 		openning = openning.add(LogicalDuration.ofHours(ouverture));
 		LogicalDateTime closing= debut.getCopy();
 		closing = closing.add(LogicalDuration.ofHours(fermeture));
 
 		this.controlTower.open_close(openning, closing);
+		
+		LoggerUtil.getLogger().initialize(engine);
 	}
 	
 	public WorldMain(int nbGates,int freqPlanes,long germe,LogicalDateTime debut,LogicalDateTime fin,int ouverture,int fermeture){
@@ -76,10 +79,10 @@ public class WorldMain {
 	public void loop(){
 		while (this.engine.triggerNextEvent()) {
         	LogicalDuration delta = this.engine.getLastDuration();
-        	System.out.println(delta);
+        	//System.out.println(delta);
         	double freq = this.controlTower.getHourlyRate();
         	int res =this.getNumberEvent(delta, freq);
-            System.out.println(res);
+            //System.out.println(res);
             while (res >0){
             	(new Plane(this.engine,this.controlTower)).activate();
             	res--;
@@ -93,7 +96,7 @@ public class WorldMain {
 		LogicalDateTime fin = new LogicalDateTime("20/03/1992 04:45:00.5000");
         WorldMain world = new WorldMain(5, 5, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
-        System.out.println(world.getPoisson(0));
+        System.out.println(world.getPoisson(3));
        // world = new WorldMain(5, 5,12345, debut, fin);
         System.out.println(world.engine.getRand().getSeed());
         
@@ -105,7 +108,7 @@ public class WorldMain {
         	int res =world.getNumberEvent(delta, 10);
             System.out.println(res);
         }*/
-        world.loop();
+        //world.loop();
         System.out.println("end");
 	}
 

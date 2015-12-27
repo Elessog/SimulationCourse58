@@ -3,15 +3,11 @@ package AirportView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
-
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
-
-import AirportServ.ParserFile;
 
 
 public class GetTextView {
@@ -34,6 +30,7 @@ public class GetTextView {
 		 frame = new javax.swing.JFrame( "FileDrop" );
         javax.swing.border.TitledBorder dragBorder = new javax.swing.border.TitledBorder( "Drop File here" );
         final javax.swing.JTextArea text = new javax.swing.JTextArea();
+        text.append("Drop your file here...\n");
         frame.getContentPane().add( 
             new javax.swing.JScrollPane( text ), 
             java.awt.BorderLayout.CENTER );
@@ -66,9 +63,7 @@ public class GetTextView {
 	
     @SuppressWarnings("serial")
 	public class MenuBar extends JMenuBar{
-    	/**
-		 * 
-		 */
+
 
 		public MenuBar(){
     		

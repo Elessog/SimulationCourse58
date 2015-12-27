@@ -1,6 +1,5 @@
 package AirportView;
 
-import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -9,7 +8,6 @@ import java.awt.event.ActionListener;
 import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -33,7 +31,6 @@ public class StartIhmView extends JPanel {
 	private JTextField mIrandom;
 	private JTextField mIouverture;
 	private JTextField mIFin;
-	private JTextField mnbrSimu;
 	private JButton mCancel;
 	private JTextField mIfermeture;
 	private JLabel mDSeed;

@@ -7,7 +7,6 @@ import javax.swing.JOptionPane;
 
 import AirportServ.ParserFile;
 import AirportServ.SimuParam;
-import AirportSim.*;
 
 @SuppressWarnings("serial")
 public class MainView extends JFrame

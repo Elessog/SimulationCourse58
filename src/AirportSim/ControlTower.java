@@ -9,7 +9,6 @@ import AirportSim.Plane.PlaneState;
 import SimSys.EntityState;
 import SimSys.SimEngine;
 import SimuCoiffeur.SimEvent;
-import enstabretagne.base.math.MoreRandom;
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.base.time.LogicalDuration;
 
@@ -29,15 +28,19 @@ public class ControlTower extends SimSys.SimEntity {
     public TaxiWays tw1;
     public TaxiWays tw2;
     public Gate[] gates;
+	private int ouverture;
+	private int fermeture;
 	
 	
-	public ControlTower(SimEngine engine,int freqPlane,int nbGates) {
+	public ControlTower(SimEngine engine,int freqPlane,int nbGates, int ouverture, int fermeture) {
 		super(engine);
 		this.freqPlaneBase = freqPlane;
 		runway = new Runway(engine,this);
 		tw1 = new  TaxiWays(engine,this);
 		tw2 = new  TaxiWays(engine,this);
 		gates = new Gate[nbGates];
+		this.ouverture =ouverture;
+		this.fermeture = fermeture;
 		for (int i=0;i<nbGates;i++){
 			gates[i]= new Gate(engine,i);
 		}
@@ -119,7 +122,7 @@ public class ControlTower extends SimSys.SimEntity {
 	}
 	
 	public void leaving(Plane exitingPlane){
-		boolean res = groundedPlanes.remove(exitingPlane);
+		groundedPlanes.remove(exitingPlane);
 		allMovingPlanes.add(exitingPlane);
 		leavingPlanes.add(exitingPlane);
 		exitingPlane.setPlaneState(PlaneState.WAITING);
@@ -157,7 +160,7 @@ public class ControlTower extends SimSys.SimEntity {
 		System.out.print("Fly ");
 		System.out.print(flyingAwayPlane.getIdNumber());
 		System.out.println(" gone");
-		System.out.println(this.engine.simulationDate());
+		System.out.println(this.engine.SimulationDate());
 		checkNewAuth();		
 	}
 	
@@ -183,7 +186,7 @@ public class ControlTower extends SimSys.SimEntity {
 			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
 			ControlTower.this.addEvent(this);
 			//adding check sky
-			for (int i=1;i<22-7;i++){
+			for (int i=1;i<ControlTower.this.fermeture-ControlTower.this.ouverture;i++){
 				ControlTower.this.addEvent(new ScanningSky(this.scheduledDate.add(LogicalDuration.ofHours(i))));
 			}
 		}
@@ -281,43 +284,42 @@ public class ControlTower extends SimSys.SimEntity {
 	   }
 	
 	public double getHourlyRate(){
-		//TODO considere week end
-		LogicalDuration day = this.engine.simulationDate().truncateToDays().soustract(this.engine.getStartTime());
+		LogicalDuration day = this.engine.SimulationDate().truncateToDays().soustract(this.engine.getStartTime());
 		int od = day.getMinutes()/(60*24)-(day.getMinutes()/(60*24*7))*7;
-		if (od > 4){
-			int seven = compareTo(7);
-			int vingtdeux = compareTo(22);
-			if (seven<0 || vingtdeux >= 0){
+		if (od > 4){//if in week end
+			int openningHour = compareTo(this.ouverture);
+			int closingHour = compareTo(this.fermeture);
+			if (openningHour<0 || closingHour >= 0){
 				return 0;
 			}
-			return 0.5*1/(double)this.freqPlaneBase;
+			return 0.5*60/(double)this.freqPlaneBase;
 		}
-		int seven = compareTo(7);
+		int openningHour = compareTo(this.ouverture);
 		int dix = compareTo(10);
 		int dixsept = compareTo(17);
 		int dixneuf = compareTo(19);
-		int vingtdeux = compareTo(22);
-		if (seven<0){
+		int closingHour = compareTo(this.fermeture);
+		if (openningHour<0){
 			return 0;
 		}
 		if (dix<0) {
-			return 2/(double)this.freqPlaneBase;
+			return 120/(double)this.freqPlaneBase;
 		}
 		if (dixsept<0){
-			return 1/(double)this.freqPlaneBase;
+			return 60/(double)this.freqPlaneBase;
 		}
         if (dixneuf<0){
-        	return 2/(double)this.freqPlaneBase;
+        	return 120/(double)this.freqPlaneBase;
 		}
-        if (vingtdeux<0){
-        	return 1/(double)this.freqPlaneBase;
+        if (closingHour<0){
+        	return 60/(double)this.freqPlaneBase;
 		}
 		return 0;
 	}
 	
 	private int compareTo(int hour){
-		LogicalDateTime baseDay = this.engine.simulationDate().truncateToDays();
-		return this.engine.simulationDate().compareTo(baseDay.add(LogicalDuration.ofHours(hour)));
+		LogicalDateTime baseDay = this.engine.SimulationDate().truncateToDays();
+		return this.engine.SimulationDate().compareTo(baseDay.add(LogicalDuration.ofHours(hour)));
 	}
 
 	

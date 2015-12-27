@@ -12,7 +12,7 @@ public class TaxiWays extends SimEntity {
 
 	public TaxiWays(SimEngine engine, ControlTower controlTower) {
 		super(engine);
-		this.controlTower = controlTower;
+		this.setControlTower(controlTower);
 	}
 
 	public boolean isOccupied() {
@@ -29,6 +29,14 @@ public class TaxiWays extends SimEntity {
 
 	public void setPlane(Plane plane) {
 		this.plane = plane;
+	}
+
+	public ControlTower getControlTower() {
+		return controlTower;
+	}
+
+	public void setControlTower(ControlTower controlTower) {
+		this.controlTower = controlTower;
 	}
 
 }
