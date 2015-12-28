@@ -47,8 +47,10 @@ public class MainView extends JFrame
 			ParserFile parser = new ParserFile(absolutePath);
 			int dialogButton = JOptionPane.YES_NO_OPTION;
             int result = JOptionPane.showConfirmDialog (null, "Do you want to start simulation ?","Warning",dialogButton);
-            if(result == JOptionPane.YES_OPTION)
-            	parser.getParam().startSimu();
+            if(result == JOptionPane.YES_OPTION){
+            	String sim = parser.getParam().startSimu();
+            	JOptionPane.showMessageDialog(null, "File save :" +sim);
+            }
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -56,7 +58,8 @@ public class MainView extends JFrame
 	}
 
 	public void startSimu(SimuParam param) {
-		param.startSimu();
+		String sim = param.startSimu();
+		JOptionPane.showMessageDialog(null, "File save :" +sim);
 	}
 
 }

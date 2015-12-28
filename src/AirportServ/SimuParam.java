@@ -53,10 +53,11 @@ public class SimuParam {
 		this.freqPlanes = freq;
 	}
 
-	public void startSimu() {
+	public String startSimu() {
 		// TODO Auto-generated method stub
 		if (debut == null || fin == null){
 			System.err.println("You need to indicate a date for start and end of simulation");
+			return "You need to indicate a date for start and end of simulation";
 		}
 		else{
 			WorldMain world = null ;
@@ -67,8 +68,9 @@ public class SimuParam {
 	        System.out.println(world.engine.getRand().getSeed());
 	        world.engine.initialize();
 	        world.engine.resume();
-	        world.loop();
+	        String res = world.loop();
 	        System.out.println("end");
+	        return res;
 		}
 	}
 }

@@ -36,8 +36,10 @@ public class ParserFile {
 	  }
 	  
 	  /**
-	   * 
-	   * @param aLine
+	   * Analyze a line of the text with the form a = b,
+	   * comments are made by putting a # before the text,
+	   * then a and b are process by SimuParam.process(a,b) to register the parameter 
+	   * @param aLine string line to process
 	   */
 	  protected void processLine(String aLine){
 	    //use a second Scanner to parse the content of each line 
@@ -49,6 +51,10 @@ public class ParserFile {
 	    if (scanner.hasNext()){
 	      //assumes the line has a certain structure
 	      String name = scanner.next();
+	      if (!scanner.hasNext()){
+	    	  log("Empty or invalid line. Unable to process.");
+	    	  return;
+	      }
 	      String value = scanner.next();
 	      log("Name is : " + quote(name.trim()) + ", and Value is : " + quote(value.trim()));
 	      param.procces(name.trim(), value.trim());

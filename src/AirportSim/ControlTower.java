@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import AirportServ.LoggerUtil;
 import AirportSim.Plane.PlaneResutState;
 import AirportSim.Plane.PlaneState;
 import SimSys.EntityState;
 import SimSys.SimEngine;
-import SimuCoiffeur.SimEvent;
+import SimSys.SimEvent;
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.base.time.LogicalDuration;
 
@@ -30,6 +31,7 @@ public class ControlTower extends SimSys.SimEntity {
     public Gate[] gates;
 	private int ouverture;
 	private int fermeture;
+	private int hourlyPlaneNb=0;
 	
 	
 	public ControlTower(SimEngine engine,int freqPlane,int nbGates, int ouverture, int fermeture) {
@@ -86,6 +88,7 @@ public class ControlTower extends SimSys.SimEntity {
 		newPlane.setControlTower(this);
 		incomingPlanes.add(newPlane);
 		allMovingPlanes.add(newPlane);
+		this.hourlyPlaneNb++;
 		checkNewAuth();
 	}
 	
@@ -183,12 +186,13 @@ public class ControlTower extends SimSys.SimEntity {
 			//check weather
 			ControlTower.this.checkWeather();
 			//reopen tomorrow
-			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
-			ControlTower.this.addEvent(this);
 			//adding check sky
-			for (int i=1;i<ControlTower.this.fermeture-ControlTower.this.ouverture;i++){
+			for (int i=0;i<=ControlTower.this.fermeture-ControlTower.this.ouverture;i++){
 				ControlTower.this.addEvent(new ScanningSky(this.scheduledDate.add(LogicalDuration.ofHours(i))));
 			}
+			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
+			ControlTower.this.addEvent(this);
+			
 		}
 
 		@Override
@@ -261,24 +265,29 @@ public class ControlTower extends SimSys.SimEntity {
 		@Override
 		public void process() {
 			//void because its just to help create plane randomly
+			LoggerUtil.Data(this);
+			ControlTower.this.hourlyPlaneNb = 0;
 		}
 
 		@Override
 		public String[] getTitles() {
-			// TODO Auto-generated method stub
-			return null;
+			String[] a = {"hourlyPlane","SimuRate","Day"};
+			return a;
 		}
 
 		@Override
 		public String[] getRecords() {
-			// TODO Auto-generated method stub
-			return null;
+			LogicalDuration day = ControlTower.this.engine.SimulationDate().truncateToDays().soustract(ControlTower.this.engine.getStartTime());
+			int nbDay = day.getMinutes()/(60*24);
+			String[] a = {String.valueOf(ControlTower.this.hourlyPlaneNb)
+					,String.valueOf(ControlTower.this.getHourlyRate()),String.valueOf(nbDay)};
+			return a;
 		}
 
 		@Override
 		public String getClassement() {
 			// TODO Auto-generated method stub
-			return null;
+			return "hourlyRate";
 		}
 		   
 	   }

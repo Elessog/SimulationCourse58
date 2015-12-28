@@ -2,9 +2,10 @@ package AirportSim;
 
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.base.time.LogicalDuration;
+import AirportServ.LoggerUtil;
 import SimSys.SimEngine;
 import SimSys.SimEntity;
-import SimuCoiffeur.SimEvent;
+import SimSys.SimEvent;
 
 public class Plane extends SimEntity {
 	
@@ -22,9 +23,11 @@ public class Plane extends SimEntity {
     private LogicalDateTime boardingTime;
     private LogicalDateTime leavingTime;
     private LogicalDateTime tw2Time;
+    private LogicalDateTime runwayTime;
     private LogicalDateTime takeoffTime;
     private LogicalDateTime endTime;
-	public LogicalDateTime endBoardingTime;
+	private LogicalDateTime endBoardingTime;
+	
 	
 
 	public Plane(SimEngine engine,ControlTower controlTower) {
@@ -229,6 +232,7 @@ public class Plane extends SimEntity {
 		@Override
 		public void process() {
 			Plane.this.prstate=PlaneResutState.ARRIVEDRUNWAY;
+			Plane.this.runwayTime = Plane.this.engine.SimulationDate();
 			Plane.this.controlTower.readyfly();
 		}
 
@@ -294,6 +298,7 @@ public class Plane extends SimEntity {
 		public void process() {
 			Plane.this.setPrstate(PlaneResutState.BOARDED);
 			Plane.this.endBoardingTime = Plane.this.engine.SimulationDate();
+			Plane.this.leavingTime = Plane.this.engine.SimulationDate();
 			Plane.this.controlTower.leaving(Plane.this);
 		}
 
@@ -328,24 +333,46 @@ public class Plane extends SimEntity {
 			Plane.this.endTime = Plane.this.engine.SimulationDate();
 			Plane.this.prstate=PlaneResutState.OUTOFREACH;
 			Plane.this.controlTower.outOfReach(Plane.this);
+			LoggerUtil.Data(this);
 		}
 
 		@Override
 		public String[] getTitles() {
-			// TODO Auto-generated method stub
-			return null;
+			String[] a = {"HeureCreation","HeureApproche"
+					     ,"HeureAterrissage","HeureTW1"
+					     ,"HeureCleaning","HeureFinCleaning"
+					     ,"HeureBoarding","HeureDepart"
+					     ,"HeureTW2","HeureRunway","HeureTakeoff","HorsLimite"
+					     ,"retardAtterissage","retardTw2"
+					     ,"retardTakeoff","heure","Day"};
+			return a;
 		}
 
 		@Override
 		public String[] getRecords() {
-			// TODO Auto-generated method stub
-			return null;
+			int landingDelay = Plane.this.approachingTime.soustract(Plane.this.creationTime).getMinutes();
+			int delayTw2 = Plane.this.tw2Time.soustract(Plane.this.leavingTime).getMinutes();
+			int delayTakeoff = Plane.this.takeoffTime.soustract(Plane.this.runwayTime).getMinutes();
+			
+			int hour = Plane.this.creationTime.soustract(Plane.this.creationTime.truncateToDays()).getMinutes()/60;
+			LogicalDuration day = Plane.this.creationTime.truncateToDays().soustract(Plane.this.engine.getStartTime());
+			int nbDay = day.getMinutes()/(60*24);
+			
+			String[] a = {Plane.this.creationTime.toString(),Plane.this.approachingTime.toString()
+				     ,Plane.this.landingTime.toString(),Plane.this.tw1Time.toString()
+				     ,Plane.this.exitPrepTime.toString(),Plane.this.endExitPrepTime.toString()
+				     ,Plane.this.boardingTime.toString(),Plane.this.leavingTime.toString()
+				     ,Plane.this.tw2Time.toString(),Plane.this.runwayTime.toString(),Plane.this.takeoffTime.toString()
+				     ,Plane.this.endTime.toString()
+				     ,String.valueOf(landingDelay),String.valueOf(delayTw2),String.valueOf(delayTakeoff)
+				     ,String.valueOf(hour),String.valueOf(nbDay)};
+			return a;
 		}
 
 		@Override
 		public String getClassement() {
 			// TODO Auto-generated method stub
-			return null;
+			return "planedetail";
 		}
 		   
 	}

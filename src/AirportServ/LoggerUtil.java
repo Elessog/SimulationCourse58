@@ -14,6 +14,8 @@ public class LoggerUtil extends Logger {
 	
 	private static LoggerUtil mSingleton;
 	
+	public static String locFile; 
+	
 	private LoggerUtil(){
 		super();
 		
@@ -37,7 +39,7 @@ public class LoggerUtil extends Logger {
 		String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		params.put(LoggerParamsNames.FileName.toString(),"LoggerAirplaneSimu"+timeStamp+".xlsx");
 		loggersNames.put(XLSXExcelDataloggerImpl.class.getCanonicalName(),params);
-		
+		locFile = params.toString();
 		Logger.Init(engine, loggersNames, true);
 	}
 

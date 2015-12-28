@@ -76,9 +76,11 @@ public class WorldMain {
 		  return k - 1;
 	}
 	
-	public void loop(){
+	public String loop(){
 		while (this.engine.triggerNextEvent()) {
         	LogicalDuration delta = this.engine.getLastDuration();
+        	if (delta.compareTo(LogicalDuration.ofHours(1))>=0)
+        		delta = LogicalDuration.ofMinutes(30);//to avoid big number of plnes at openning of airport
         	//System.out.println(delta);
         	double freq = this.controlTower.getHourlyRate();
         	int res =this.getNumberEvent(delta, freq);
@@ -88,6 +90,8 @@ public class WorldMain {
             	res--;
             }
         }
+		LoggerUtil.Terminate();
+		return LoggerUtil.locFile;
 	}
 	
 	public static void main(String[] args) {

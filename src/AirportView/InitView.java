@@ -17,6 +17,7 @@ public class InitView extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private JButton mTextFile;
 	private JButton mBoxes;
+	private JButton mQuit;
 	
 	
 	public InitView(){
@@ -55,6 +56,22 @@ public class InitView extends JPanel {
 			}
 		});;
 		add(mBoxes,c);
+		
+		
+		mQuit = new JButton("Quit");
+		c.gridx = 0;
+		c.gridy = 2;
+		mQuit.addActionListener(new ActionListener() 
+		{			
+			
+
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				System.exit(0);
+			}
+		});;
+		add(mQuit,c);
 		
 		
 	}
