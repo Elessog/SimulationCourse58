@@ -3,12 +3,15 @@ package SimSys;
 import java.util.HashSet;
 import java.util.Set;
 
+import AirportServ.AirportScenarioId;
+import enstabretagne.simulation.components.IScenarioIdProvider;
+import enstabretagne.simulation.components.ScenarioId;
 import enstabretagne.simulation.core.ISimulationDateProvider;
 import enstabretagne.base.math.MoreRandom;
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.base.time.LogicalDuration;
 
-public class SimEngine implements ISimulationDateProvider, IEventObserver {
+public class SimEngine implements ISimulationDateProvider, IEventObserver, IScenarioIdProvider {
 
 	private LogicalDateTime currentTime;
 	private LogicalDateTime lastTime;
@@ -17,14 +20,21 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 	private SortedList<ISimEvent> echeancier = new SortedList<>();
 	private Set<SimEntity> entities = new HashSet<>();
 	private MoreRandom rand;
+	private ScenarioId scenarioId;
 	
-	public SimEngine(LogicalDateTime maxTime) {
+	public SimEngine(LogicalDateTime maxTime, AirportScenarioId id) {
 		this.maxTime = maxTime;
+		this.scenarioId = id;
 	}
 	
 	@Override
 	public LogicalDateTime SimulationDate() {
 		return currentTime;
+	}
+	
+	@Override
+	public ScenarioId getScenarioId() {
+		return scenarioId;
 	}
 	
 	@Override
@@ -124,6 +134,7 @@ public class SimEngine implements ISimulationDateProvider, IEventObserver {
 	public void setStartTime(LogicalDateTime startTime) {
 		StartTime = startTime;
 	}
+
 
 	
 }

@@ -1,5 +1,6 @@
 package AirportSim;
 
+import AirportServ.AirportScenarioId;
 import AirportServ.LoggerUtil;
 import SimSys.SimEngine;
 import enstabretagne.base.math.MoreRandom;
@@ -12,7 +13,8 @@ public class WorldMain {
 
 	
 	public WorldMain(int nbGates,int freqPlanes,MoreRandom rand,LogicalDateTime debut,LogicalDateTime fin,int ouverture,int fermeture){
-		this.engine = new SimEngine(fin);
+		AirportScenarioId id= new AirportScenarioId(nbGates, freqPlanes, rand, debut, fin, ouverture, fermeture);
+		this.engine = new SimEngine(fin,id);
 		debut = debut.truncateToDays();
 		System.out.println(debut);
 		this.engine.setStartTime(debut);

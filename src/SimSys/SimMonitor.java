@@ -66,7 +66,7 @@ public class SimMonitor {
 	}
 	
 	public static void main(String [] args) {
-		SimEngine engine = new SimEngine(t(9999));
+		SimEngine engine = new SimEngine(t(9999),null);
 		Sim alice = new Sim(engine);
 		alice.setName("alice");
 		Sim bob = new Sim(engine);

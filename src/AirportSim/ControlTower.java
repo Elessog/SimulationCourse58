@@ -135,10 +135,16 @@ public class ControlTower extends SimSys.SimEntity {
 	public void goTotw2(){
 		if (!tw2.isOccupied() && !leavingPlanes.isEmpty()){
 			Plane gototw2Plane = leavingPlanes.get(0);
+			gates[gototw2Plane.getGateId()].setOccupied(false);
+			gates[gototw2Plane.getGateId()].setPlane(null);
 			tw2.setOccupied(true);
 			tw2.setPlane(gototw2Plane);
 			tw2Plane = gototw2Plane;
 			goingtw2();
+			if (tw1.getPlane()!=null){//a gate is now free
+				if  (tw1.getPlane().getPrstate()==PlaneResutState.ROULINGENDED)
+					endfly();
+			}
 		}
 	}
 	
@@ -226,10 +232,10 @@ public class ControlTower extends SimSys.SimEntity {
 		public void process() {
 			ControlTower.this.isOpen = false;
 			//rerouting all incoming airplanes
-			for (Plane iPlane:incomingPlanes){
-				allMovingPlanes.remove(iPlane);
+			for (Plane iPlane:ControlTower.this.incomingPlanes){
+				ControlTower.this.allMovingPlanes.remove(iPlane);
 			}
-			incomingPlanes.clear();
+			ControlTower.this.incomingPlanes.clear();
 
 			this.resetProcessDate(this.scheduledDate.add(LogicalDuration.ofDay(1)));
 			ControlTower.this.addEvent(this);
@@ -294,6 +300,7 @@ public class ControlTower extends SimSys.SimEntity {
 	
 	public double getHourlyRate(){
 		LogicalDuration day = this.engine.SimulationDate().truncateToDays().soustract(this.engine.getStartTime());
+		
 		int od = day.getMinutes()/(60*24)-(day.getMinutes()/(60*24*7))*7;
 		if (od > 4){//if in week end
 			int openningHour = compareTo(this.ouverture);
@@ -348,7 +355,7 @@ public class ControlTower extends SimSys.SimEntity {
 		boolean free = false;
 		int i=0;
 		while (i<size & !free){
-			free =!gates[size-1].isOccupied();
+			free =!gates[i].isOccupied();
 			if (!free) 
 			  i++;
 		}
@@ -373,10 +380,15 @@ public class ControlTower extends SimSys.SimEntity {
 		incomingPlane.approach();
 	}
 
+
 	private void checkNewAuth() {
 		// TODO Auto-generated method stub
-		if (allMovingPlanes.size()<=0 || runway.isOccupied())
+		if (allMovingPlanes.isEmpty())
 			return;
+		if (runway.isOccupied()){
+			goTotw2();
+			return;
+		}
 		Plane authorizedPlane = allMovingPlanes.remove(0);
 		if (authorizedPlane.getPlaneState() == PlaneState.GOINGTAKEOFF){
 			// the next plane on takeaway is leaving
@@ -394,17 +406,32 @@ public class ControlTower extends SimSys.SimEntity {
 				authorizedPlane.takeoff();
 			}
 			else
-				allMovingPlanes.add(0, authorizedPlane);//reput plane in fist place
+				allMovingPlanes.add(0, authorizedPlane);//reput plane in first place
 		}
-		else if (!tw1.isOccupied()) {
-			this.incomingPlane= authorizedPlane;
-			this.incomingPlanes.remove(authorizedPlane);
-			authorizedLandingProc();
+		else if (authorizedPlane.getPrstate()==PlaneResutState.FLYING) {
+
+			if (!tw1.isOccupied()){ 
+				this.incomingPlane= authorizedPlane;
+				this.incomingPlanes.remove(authorizedPlane);
+				authorizedLandingProc();
+			}
+			else if (!leavingPlanes.isEmpty()){//if a plane ready to takeoff it takeoff
+				allMovingPlanes.add(0, authorizedPlane);
+				Plane r =leavingPlanes.get(0);
+				goTotw2();
+				if (r.getPrstate() == PlaneResutState.ARRIVEDRUNWAY){
+					allMovingPlanes.remove(r);
+					allMovingPlanes.add(0,r);
+					checkNewAuth();
+				}
+			}
+			else
+				allMovingPlanes.add(0, authorizedPlane);//reput plane in first place
 		}
 		else{
-		   allMovingPlanes.add(0, authorizedPlane);
-		   return;
+		   allMovingPlanes.add(0, authorizedPlane); 
 		}
+		goTotw2();//authorize plane to go to tw2
 	}
 
 	public int getWeatherIndice() {

@@ -26,13 +26,11 @@ public class Plane extends SimEntity {
     private LogicalDateTime runwayTime;
     private LogicalDateTime takeoffTime;
     private LogicalDateTime endTime;
-	private LogicalDateTime endBoardingTime;
-	
-	
-
+    
+    
 	public Plane(SimEngine engine,ControlTower controlTower) {
 		super(engine);
-		this.creationTime = this.engine.SimulationDate();
+		this.creationTime = this.engine.SimulationDate().getCopy();
 		controlTower.annoucing(this);
 	}
 
@@ -89,7 +87,7 @@ public class Plane extends SimEntity {
 		this.controlTower = controlTower;	
 	}
 	
-	@Override
+	/*@Override
 	public boolean equals(Object o){
 		
 		if ((o instanceof Plane)){
@@ -97,32 +95,32 @@ public class Plane extends SimEntity {
 		}
 		else 
 			return false;
-	}
+	}*/
 
 
 	public void approach() {
-		this.approachingTime = this.engine.SimulationDate();
+		this.approachingTime = this.engine.SimulationDate().getCopy();
 		int minutes = (int) this.engine.getRand().nextUniform(2, 5.999)*this.controlTower.getWeatherIndice();
-		this.addEvent(new ApproachingEnd(this.approachingTime.add(LogicalDuration.ofMinutes(minutes))));
+		this.addEvent(new ApproachingEnd(this.approachingTime.getCopy().add(LogicalDuration.ofMinutes(minutes))));
 	}
 	
 	public void landing(){
-		this.landingTime = this.engine.SimulationDate();
-		LandingEnd landing = new LandingEnd(Plane.this.landingTime.add(LogicalDuration.ofMinutes(2)));
+		this.landingTime = this.engine.SimulationDate().getCopy();
+		LandingEnd landing = new LandingEnd(Plane.this.landingTime.getCopy().add(LogicalDuration.ofMinutes(2)));
 		this.addEvent(landing);
 	}
 	
 	public void tw1ing() {
-		this.tw1Time = this.engine.SimulationDate();
+		this.tw1Time = this.engine.SimulationDate().getCopy();
 		int minutes = (int) this.engine.getRand().nextUniform(2, 6.999);
-		tw1End tw1ing = new tw1End(Plane.this.tw1Time.add(LogicalDuration.ofMinutes(minutes)));
+		tw1End tw1ing = new tw1End(Plane.this.tw1Time.getCopy().add(LogicalDuration.ofMinutes(minutes)));
 		this.addEvent(tw1ing);
 	}
 
 	public void takeoff() {
-		this.takeoffTime = this.engine.SimulationDate();
-		TakeOffEnd landing = new TakeOffEnd(Plane.this.takeoffTime.add(LogicalDuration.ofMinutes(3)));
-		this.addEvent(landing);
+		this.takeoffTime = this.engine.SimulationDate().getCopy();
+		TakeOffEnd takeoff = new TakeOffEnd(Plane.this.takeoffTime.getCopy().add(LogicalDuration.ofMinutes(3)));
+		this.addEvent(takeoff);
 	}
 	
 	private class ApproachingEnd extends SimEvent{
@@ -232,7 +230,7 @@ public class Plane extends SimEntity {
 		@Override
 		public void process() {
 			Plane.this.prstate=PlaneResutState.ARRIVEDRUNWAY;
-			Plane.this.runwayTime = Plane.this.engine.SimulationDate();
+			Plane.this.runwayTime = Plane.this.engine.SimulationDate().getCopy();
 			Plane.this.controlTower.readyfly();
 		}
 
@@ -264,7 +262,7 @@ public class Plane extends SimEntity {
 
 		@Override
 		public void process() {
-			Plane.this.endExitPrepTime = Plane.this.engine.SimulationDate();
+			Plane.this.endExitPrepTime = Plane.this.engine.SimulationDate().getCopy();
 			Plane.this.controlTower.deboardEnded(Plane.this);
 		}
 
@@ -297,8 +295,7 @@ public class Plane extends SimEntity {
 		@Override
 		public void process() {
 			Plane.this.setPrstate(PlaneResutState.BOARDED);
-			Plane.this.endBoardingTime = Plane.this.engine.SimulationDate();
-			Plane.this.leavingTime = Plane.this.engine.SimulationDate();
+			Plane.this.leavingTime = Plane.this.engine.SimulationDate().getCopy();
 			Plane.this.controlTower.leaving(Plane.this);
 		}
 
@@ -330,7 +327,7 @@ public class Plane extends SimEntity {
 
 		@Override
 		public void process() {
-			Plane.this.endTime = Plane.this.engine.SimulationDate();
+			Plane.this.endTime = Plane.this.engine.SimulationDate().getCopy();
 			Plane.this.prstate=PlaneResutState.OUTOFREACH;
 			Plane.this.controlTower.outOfReach(Plane.this);
 			LoggerUtil.Data(this);
@@ -344,7 +341,7 @@ public class Plane extends SimEntity {
 					     ,"HeureBoarding","HeureDepart"
 					     ,"HeureTW2","HeureRunway","HeureTakeoff","HorsLimite"
 					     ,"retardAtterissage","retardTw2"
-					     ,"retardTakeoff","heure","Day"};
+					     ,"retardTakeoff","heure","Day","gate","idPlane"};
 			return a;
 		}
 
@@ -353,7 +350,9 @@ public class Plane extends SimEntity {
 			int landingDelay = Plane.this.approachingTime.soustract(Plane.this.creationTime).getMinutes();
 			int delayTw2 = Plane.this.tw2Time.soustract(Plane.this.leavingTime).getMinutes();
 			int delayTakeoff = Plane.this.takeoffTime.soustract(Plane.this.runwayTime).getMinutes();
-			
+			if (delayTakeoff<0){
+				System.out.println("ff");
+			}
 			int hour = Plane.this.creationTime.soustract(Plane.this.creationTime.truncateToDays()).getMinutes()/60;
 			LogicalDuration day = Plane.this.creationTime.truncateToDays().soustract(Plane.this.engine.getStartTime());
 			int nbDay = day.getMinutes()/(60*24);
@@ -365,7 +364,8 @@ public class Plane extends SimEntity {
 				     ,Plane.this.tw2Time.toString(),Plane.this.runwayTime.toString(),Plane.this.takeoffTime.toString()
 				     ,Plane.this.endTime.toString()
 				     ,String.valueOf(landingDelay),String.valueOf(delayTw2),String.valueOf(delayTakeoff)
-				     ,String.valueOf(hour),String.valueOf(nbDay)};
+				     ,String.valueOf(hour),String.valueOf(nbDay),String.valueOf(Plane.this.gateId)
+				     ,String.valueOf(Plane.this.idNumber)};
 			return a;
 		}
 
