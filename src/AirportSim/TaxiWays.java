@@ -3,6 +3,12 @@ package AirportSim;
 import SimSys.SimEngine;
 import SimSys.SimEntity;
 
+/**Taxiways represent a taxiway that planes will use to go to the runway or gates
+ * have attribute occupied to indicate if a plane is using it
+ * 
+ * @author Elouan Autret
+ *
+ */
 public class TaxiWays extends SimEntity {
 	
 	private boolean occupied;

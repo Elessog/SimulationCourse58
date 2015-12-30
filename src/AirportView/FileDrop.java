@@ -111,7 +111,6 @@ public class FileDrop
      * the parameter <tt>out</tt> will result in no debugging output.
      *
      * @param out PrintStream to record debugging info or null for no debugging.
-     * @param out 
      * @param c Component on which files will be dropped.
      * @param listener Listens for <tt>filesDropped</tt>.
      * @since 1.0
@@ -140,7 +139,6 @@ public class FileDrop
      * the parameter <tt>out</tt> will result in no debugging output.
      *
      * @param out PrintStream to record debugging info or null for no debugging.
-     * @param out 
      * @param c Component on which files will be dropped.
      * @param recursive Recursively set children as drop targets.
      * @param listener Listens for <tt>filesDropped</tt>.
@@ -636,8 +634,8 @@ public class FileDrop
     
     /**
      * This is the event that is passed to the
-     * {@link FileDropListener#filesDropped filesDropped(...)} method in
-     * your {@link FileDropListener} when files are dropped onto
+     * {@link FileDrop#filesDropped filesDropped(...)} method in
+     * your {@link FileDrop} when files are dropped onto
      * a registered drop target.
      *
      * <p>I'm releasing this code into the Public Domain. Enjoy.</p>
@@ -656,7 +654,6 @@ public class FileDrop
          * {@link FileDrop} that initiated the event.
          *
          * @param files The array of files that were dropped
-         * @source The event source
          * @since 1.1
          */
         public Event( java.io.File[] files, Object source ) {
@@ -827,7 +824,7 @@ public class FileDrop
          * the custom data flavor, if one was created in the constructors,
          * second the default {@link #DATA_FLAVOR} associated with
          * {@link TransferableObject}, and third the
-         * {@link java.awt.datatransfer.DataFlavor.stringFlavor}.
+         * {@link java.awt.datatransfer.DataFlavor#stringFlavor}.
          *
          * @return An array of supported data flavors
          * @since 1.1
@@ -911,8 +908,9 @@ public class FileDrop
          * on the {@link TransferableObject}, the {@link Fetcher}'s
          * {@link #getObject getObject()} method will be called.
          *
+         * <li>"@copyright 2001"<li>
+         *
          * @author Robert Harder
-         * @copyright 2001
          * @version 1.1
          * @since 1.1
          */

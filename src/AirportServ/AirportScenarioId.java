@@ -4,6 +4,7 @@ import enstabretagne.base.math.MoreRandom;
 import enstabretagne.base.time.LogicalDateTime;
 import enstabretagne.simulation.components.ScenarioId;
 
+
 public class AirportScenarioId extends ScenarioId {
 
 	public AirportScenarioId(String scenarioId, long repliqueNumber) {
